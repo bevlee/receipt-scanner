@@ -5,6 +5,7 @@ import sys
 f = open("member_number", "r")
 
 MEMBER_NUMBER = f.read()
+TESSERACT_PATH = r"D:\\tesseract\\tesseract"
 f.close()
 
 print(MEMBER_NUMBER)
@@ -23,7 +24,7 @@ print(MEMBER_NUMBER)
 #             read = False
 
 # if __name__ == "__main__":
-#     pytesseract.pytesseract.tesseract_cmd = r"D:\\tesseract\\tesseract"
+#     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 #     if len(sys.argv) == 2:
 
