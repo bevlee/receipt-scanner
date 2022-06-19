@@ -28,6 +28,7 @@ def read_image(string, member_number, filename):
     print(len(string_list))
     while i < len(string_list):
         
+        #stop reading items as there are none after this
         if "COMMONWEALTH" in string_list[i] or "COMMONWEALTH" in string_list[i-1]:
             reading_items = False
         if reading_items:
@@ -39,8 +40,10 @@ def read_image(string, member_number, filename):
             curr += 1
             i += 1
 
+        #start reading items as they appear after the member number
         if str(member_number) in string_list[i]:
             reading_items = True
+
         i += 1
     with open("items/" + filename + ".csv", "w") as f:
         for item in items:
@@ -59,20 +62,22 @@ if __name__ == "__main__":
     # Perform OCR on receipt image
     elif len(sys.argv) == 3:
         try:
+            # to pdf
             if sys.argv[1] == '-p':
                 
                 pdf = pytesseract.image_to_pdf_or_hocr(sys.argv[2], extension='pdf')
                 with open('test.pdf', 'w+b') as f:
                     f.write(pdf) # pdf type is bytes by default
 
+            # to csv
             elif sys.argv[1] == '-t':
                 out = pytesseract.image_to_string(Image.open(sys.argv[2]), lang='eng')
                 print(out)
 
                 with open("logs/" + re.split('[./]',sys.argv[2])[-2], "w") as f:
                     f.write(out)
-        except:
-            print("exception")
+        except Exception as e:
+            print(e)
     
         
     
