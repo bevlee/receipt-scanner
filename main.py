@@ -2,6 +2,8 @@ import pytesseract
 from PIL import Image
 import sys
 import re
+import products
+
 
 #use member_number as starting point for costco receipt
 f = open("member_number", "r")
@@ -13,7 +15,7 @@ START_STRING = MEMBER_NUMBER
 TESSERACT_PATH = r"D:\\tesseract\\tesseract"
 WHITELIST_LETTERS = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,-_/"
 
-
+# designed for costco receipts
 def read_image(string, member_number, filename):
     reading_items = False
     string = string.replace("\n\n", "\n")
@@ -29,14 +31,18 @@ def read_image(string, member_number, filename):
         if "COMMONWEALTH" in string_list[i] or "COMMONWEALTH" in string_list[i-1]:
             reading_items = False
         if reading_items:
+            name = string_list[i] 
+            product_id, quantity, price = string_list[i+1].split(:3)
+                
             items[curr] = string_list[i] + ", " + string_list[i+1].replace(" ", ",")
             #print(items[curr])
             curr += 1
             i += 1
+
         if str(member_number) in string_list[i]:
             reading_items = True
         i += 1
-    with open("items/" + filename, "w") as f:
+    with open("items/" + filename + ".csv", "w") as f:
         for item in items:
             f.write(item+"\n")
 
@@ -67,7 +73,6 @@ if __name__ == "__main__":
                     f.write(out)
         except:
             print("exception")
-    else:
-        print()
+    
         
     
