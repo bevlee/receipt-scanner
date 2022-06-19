@@ -1,5 +1,8 @@
 receipts/*
 member_number
 logs/*
-
+items/*
 venv/*
+
+*.jpg
+*.pdf
