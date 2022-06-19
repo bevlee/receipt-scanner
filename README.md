@@ -1,2 +1,3 @@
 # receipt-scanner
-extracting individual receipt records using tesseract OCR
+
+extracting COSTCO receipt records using tesseract OCR
