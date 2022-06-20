@@ -1,5 +1,6 @@
 receipts/*
 member_number
+db_password
 logs/*
 items/*
 venv/*
