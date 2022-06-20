@@ -2,12 +2,15 @@ import pytesseract
 from PIL import Image
 import sys
 import re
-import products
-
+import psycopg
 
 #use member_number as starting point for costco receipt
 f = open("member_number", "r")
 MEMBER_NUMBER = f.read()
+f.close()
+
+f = open("db_password", "r")
+DB_PASSWORD = f.read()
 f.close()
 
 START_STRING = MEMBER_NUMBER
@@ -15,8 +18,29 @@ START_STRING = MEMBER_NUMBER
 TESSERACT_PATH = r"D:\\tesseract\\tesseract"
 WHITELIST_LETTERS = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,-_/"
 
+
+
 # designed for costco receipts
 def read_image(string, member_number, filename):
+
+    with psycopg.connect("dbname=costco user=postgres password={}".format(DB_PASSWORD)) as conn:
+
+        # Open a cursor to perform database operations
+        with conn.cursor() as cur:
+
+            # Query the database and obtain data as Python objects.
+            cur.execute("SELECT * FROM product")
+            cur.fetchone()
+            # will return (1, 100, "abc'def")
+
+            # You can use `cur.fetchmany()`, `cur.fetchall()` to return a list
+            # of several records, or even iterate on the cursor
+            for record in cur:
+                print(record)
+
+            # Make the changes to the database persistent
+            conn.commit()
+
     reading_items = False
     string = string.replace("\n\n", "\n")
     string_list = string.split('\n')
@@ -33,10 +57,10 @@ def read_image(string, member_number, filename):
             reading_items = False
         if reading_items:
             name = string_list[i] 
-            product_id, quantity, price = string_list[i+1].split(:3)
+            product_id, quantity, price = string_list[i+1].replace(" ", ",").split(",")[:3]
                 
             items[curr] = string_list[i] + ", " + string_list[i+1].replace(" ", ",")
-            #print(items[curr])
+            print(items[curr])
             curr += 1
             i += 1
 
