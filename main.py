@@ -23,6 +23,12 @@ WHITELIST_LETTERS = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 # designed for costco receipts
 def read_image(string, member_number, filename):
 
+    reading_items = False
+    string = string.replace("\n\n", "\n")
+    string_list = string.split('\n')
+
+    items = [""] * (len(string_list)//2)
+
     with psycopg.connect("dbname=costco user=postgres password={}".format(DB_PASSWORD)) as conn:
 
         # Open a cursor to perform database operations
@@ -38,38 +44,38 @@ def read_image(string, member_number, filename):
             for record in cur:
                 print(record)
 
+            # a bit larger than needed as we ignore first and last few lines
+            curr = 0
+            i = 0
+            print(len(string_list))
+            while i < len(string_list):
+
+                #stop reading items as there are none after this
+                if "COMMONWEALTH" in string_list[i] or "COMMONWEALTH" in string_list[i-1]:
+                    reading_items = False
+                if reading_items:
+                    name = string_list[i] 
+                    product_id, quantity, price = string_list[i+1].replace(" ", ",").split(",")[:3]
+
+                    items[curr] = string_list[i] + ", " + string_list[i+1].replace(" ", ",")
+                    print(items[curr])
+                    curr += 1
+                    i += 1
+
+                #start reading items as they appear after the member number
+                if str(member_number) in string_list[i]:
+                    reading_items = True
+
+                i += 1
+            
+
             # Make the changes to the database persistent
             conn.commit()
-
-    reading_items = False
-    string = string.replace("\n\n", "\n")
-    string_list = string.split('\n')
     
-    items = [""] * (len(string_list)//2)
-    # a bit larger than needed as we ignore first and last few lines
-    curr = 0
-    i = 0
-    print(len(string_list))
-    while i < len(string_list):
-        
-        #stop reading items as there are none after this
-        if "COMMONWEALTH" in string_list[i] or "COMMONWEALTH" in string_list[i-1]:
-            reading_items = False
-        if reading_items:
-            name = string_list[i] 
-            product_id, quantity, price = string_list[i+1].replace(" ", ",").split(",")[:3]
-                
-            items[curr] = string_list[i] + ", " + string_list[i+1].replace(" ", ",")
-            print(items[curr])
-            curr += 1
-            i += 1
-
-        #start reading items as they appear after the member number
-        if str(member_number) in string_list[i]:
-            reading_items = True
-
-        i += 1
+    
+    
     with open("items/" + filename + ".csv", "w") as f:
+        f.write("name, id, count, cost\n")
         for item in items:
             f.write(item+"\n")
 
